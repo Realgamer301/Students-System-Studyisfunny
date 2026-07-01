@@ -1,0 +1,85 @@
+<%- include('partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3>إدارة المستخدمين</h3>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h5 class="mb-3">إضافة مستخدم جديد</h5>
+    <form action="/users" method="POST" class="row g-2">
+      <div class="col-md-3">
+        <input type="text" name="name" class="form-control" placeholder="الاسم بالكامل" required>
+      </div>
+      <div class="col-md-3">
+        <input type="text" name="username" class="form-control" placeholder="اليوزرنيم" required>
+      </div>
+      <div class="col-md-3">
+        <input type="password" name="password" class="form-control" placeholder="الباسورد" required>
+      </div>
+      <div class="col-md-2">
+        <select name="role" class="form-select">
+          <option value="assistant">أسيستانت</option>
+          <option value="admin">أدمن</option>
+        </select>
+      </div>
+      <div class="col-md-1">
+        <button type="submit" class="btn btn-primary w-100">إضافة</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="table-responsive bg-white rounded shadow-sm p-3">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>الاسم</th>
+        <th>اليوزرنيم</th>
+        <th>الصلاحية</th>
+        <th>تاريخ الإنشاء</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(u => { %>
+        <tr>
+          <td><%= u.name %></td>
+          <td><%= u.username %></td>
+          <td>
+            <% if (u.role === 'admin') { %>
+              <span class="badge bg-danger">أدمن</span>
+            <% } else { %>
+              <span class="badge bg-primary">أسيستانت</span>
+            <% } %>
+          </td>
+          <td><%= u.createdAt.toLocaleDateString('ar-EG') %></td>
+          <td>
+            <% if (u.id !== currentUserId) { %>
+              <form action="/users/<%= u.id %>/delete" method="POST" onsubmit="return confirm('متأكد من حذف هذا المستخدم؟')">
+                <button type="submit" class="btn btn-sm btn-outline-danger">حذف</button>
+              </form>
+            <% } else { %>
+              <span class="text-muted small">(أنت)</span>
+            <% } %>
+          </td>
+          <td>
+  <a href="/users/<%= u.id %>/stats" class="btn btn-sm btn-outline-info">📊 إحصائيات</a>
+  <% if (u.role !== 'admin') { %>
+    <a href="/users/<%= u.id %>/permissions" class="btn btn-sm btn-outline-primary">الصلاحيات</a>
+  <% } %>
+  <% if (u.id !== currentUserId) { %>
+    <form action="/users/<%= u.id %>/delete" method="POST" onsubmit="return confirm('متأكد من حذف هذا المستخدم؟')" class="d-inline">
+      <button type="submit" class="btn btn-sm btn-outline-danger">حذف</button>
+    </form>
+  <% } else { %>
+    <span class="text-muted small">(أنت)</span>
+  <% } %>
+</td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('partials/footer') %>

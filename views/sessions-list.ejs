@@ -1,0 +1,150 @@
+<%- include('partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="mb-1">🗂️ كل الحصص</h3>
+    <p class="text-muted small mb-0">إدارة ومتابعة كل حصص السناتر والأونلاين</p>
+  </div>
+  <a href="/sessions/new" class="btn btn-primary">+ بدء حصة جديدة</a>
+</div>
+
+<div class="table-responsive bg-white rounded shadow-sm p-3">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>السيريال</th>
+        <th>المادة</th>
+        <th>السنتر</th>
+        <th>الرقم النسبي</th>
+        <th>التاريخ</th>
+        <th>الحالة</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% sessions.forEach(s => { %>
+        <tr class="<%= String(s.id) === String(activeSessionId) ? 'table-success' : '' %>">
+          <td><strong><%= s.serial_number %></strong></td>
+          <td><%= s.Subject.name %></td>
+          <td><%= s.Center.name %></td>
+          <td><%= s.lesson_number %></td>
+          <td><%= s.session_date %></td>
+          <td>
+  <% if (s.status === 'cancelled') { %>
+    <span class="badge" style="background:#FEE2E2; color:#B91C1C;">⛔ ملغية</span>
+  <% } else { %>
+    <span class="badge" style="background:#D1FAE5; color:#047857;">✓ عادية</span>
+  <% } %>
+</td>
+          <td class="text-nowrap">
+            <% if (String(s.id) === String(activeSessionId)) { %>
+              <span class="badge bg-primary">✓ الشغالة دلوقتي</span>
+            <% } else { %>
+              <form action="/sessions/<%= s.id %>/activate" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-outline-primary">تفعيل</button>
+              </form>
+            <% } %>
+            <a href="/sessions/<%= s.id %>/report" class="btn btn-sm btn-outline-dark">📊 تقرير</a>
+
+            <% if (userRole === 'admin') { %>
+              <% if (s.status === 'cancelled') { %>
+                <form action="/sessions/<%= s.id %>/restore" method="POST" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-outline-success">إلغاء الإلغاء</button>
+                </form>
+              <% } else { %>
+                <button type="button" class="btn btn-sm btn-outline-danger"
+                  onclick="openCancelModal(<%= s.id %>, '<%= s.lesson_number %>', '<%= s.Subject.name %>')">
+                  🚫 إلغاء
+                </button>
+              <% } %>
+
+              <button type="button" class="btn btn-sm btn-outline-secondary"
+                onclick="openEditModal(<%= s.id %>, '<%= s.session_date %>')">
+                ✏️ تعديل
+              </button>
+
+              <form action="/sessions/<%= s.id %>/delete" method="POST" class="d-inline"
+                onsubmit="return confirm('متأكد من حذف الحصة دي بالكامل؟ ده غير قابل للتراجع.')">
+                <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ حذف</button>
+              </form>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<!-- مودال إلغاء الحصة -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">إلغاء حصة</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="cancelForm" method="POST">
+        <div class="modal-body">
+          <p>هتلغي حصة رقم <strong id="cancelLessonNumber"></strong> من مادة <strong id="cancelSubjectName"></strong></p>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="scope" value="single" id="scopeSingle" checked>
+            <label class="form-check-label" for="scopeSingle">
+              إلغاء من هذا السنتر بس (اللي اخترته)
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="scope" value="all" id="scopeAll">
+            <label class="form-check-label" for="scopeAll">
+              إلغاء من <strong>كل السناتر</strong> (نفس رقم الحصة في كل مكان)
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">رجوع</button>
+          <button type="submit" class="btn btn-danger">تأكيد الإلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- مودال تعديل تاريخ الحصة -->
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">تعديل تاريخ الحصة</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="editForm" method="POST">
+        <div class="modal-body">
+          <label class="form-label">التاريخ الصحيح</label>
+          <input type="date" name="session_date" id="editDateInput" class="form-control" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">رجوع</button>
+          <button type="submit" class="btn btn-primary">حفظ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openCancelModal(sessionId, lessonNumber, subjectName) {
+    document.getElementById('cancelLessonNumber').textContent = lessonNumber;
+    document.getElementById('cancelSubjectName').textContent = subjectName;
+    document.getElementById('cancelForm').action = `/sessions/${sessionId}/cancel`;
+    const modal = new bootstrap.Modal(document.getElementById('cancelModal'));
+    modal.show();
+  }
+
+  function openEditModal(sessionId, currentDate) {
+    document.getElementById('editDateInput').value = currentDate;
+    document.getElementById('editForm').action = `/sessions/${sessionId}/edit`;
+    const modal = new bootstrap.Modal(document.getElementById('editModal'));
+    modal.show();
+  }
+</script>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,98 @@
+<%- include('partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3>الامتحانات</h3>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h5 class="mb-3">إنشاء امتحان جديد</h5>
+    <form action="/exams" method="POST" class="row g-2">
+      <div class="col-md-3">
+        <input type="text" name="name" class="form-control" placeholder="اسم الامتحان" required>
+      </div>
+      <div class="col-md-3">
+        <select name="subject_id" id="subjectSelect" class="form-select" required>
+          <option value="">-- المادة --</option>
+          <% subjects.forEach(subj => { %>
+            <option value="<%= subj.id %>"><%= subj.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select name="session_id" id="sessionSelect" class="form-select">
+          <option value="">-- بدون ربط بحصة معينة --</option>
+          <% allSessions.forEach(s => { %>
+            <option value="<%= s.id %>" data-subject="<%= s.SubjectId %>">
+              حصة <%= s.lesson_number %> - <%= s.Center.name %> (<%= s.serial_number %>)
+            </option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="col-md-1">
+        <input type="number" name="max_score" class="form-control" placeholder="الدرجة" value="100" required>
+      </div>
+      <div class="col-md-1">
+        <input type="date" name="exam_date" class="form-control" required>
+      </div>
+      <div class="col-md-1">
+        <button type="submit" class="btn btn-primary w-100">إنشاء</button>
+      </div>
+    </form>
+    <p class="text-muted small mt-2">💡 لو حددت حصة، الدرجة هتظهر تلقائي جمب الواجب في ملف كل طالب حضر هذه الحصة (في أي سنتر).</p>
+  </div>
+</div>
+
+<div class="table-responsive bg-white rounded shadow-sm p-3">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>الامتحان</th>
+        <th>المادة</th>
+        <th>الحصة المرتبطة</th>
+        <th>الدرجة الكاملة</th>
+        <th>التاريخ</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% exams.forEach(exam => { %>
+        <tr>
+          <td><%= exam.name %></td>
+          <td><%= exam.Subject.name %></td>
+          <td>
+            <% if (exam.Session) { %>
+              حصة <%= exam.Session.lesson_number %>
+            <% } else { %>
+              <span class="text-muted">مستقل</span>
+            <% } %>
+          </td>
+          <td><%= exam.max_score %></td>
+          <td><%= exam.exam_date %></td>
+          <td><a href="/exams/<%= exam.id %>" class="btn btn-sm btn-outline-primary">رصد الدرجات</a></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  // إظهار حصص المادة المختارة بس في قائمة "الحصة المرتبطة"
+  const subjectSelect = document.getElementById('subjectSelect');
+  const sessionSelect = document.getElementById('sessionSelect');
+  const allSessionOptions = Array.from(sessionSelect.options);
+
+  subjectSelect.addEventListener('change', function () {
+    const selectedSubject = this.value;
+    sessionSelect.innerHTML = '';
+    sessionSelect.appendChild(allSessionOptions[0]); // خيار "بدون ربط"
+
+    allSessionOptions.forEach(opt => {
+      if (opt.dataset.subject === selectedSubject) {
+        sessionSelect.appendChild(opt);
+      }
+    });
+  });
+</script>
+
+<%- include('partials/footer') %>

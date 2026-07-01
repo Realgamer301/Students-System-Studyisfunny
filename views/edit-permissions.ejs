@@ -1,0 +1,19 @@
+<%- include('partials/header') %>
+
+<h3 class="mb-4">🔐 صلاحيات: <%= targetUser.name %></h3>
+
+<form action="/users/<%= targetUser.id %>/permissions" method="POST">
+  <div class="card shadow-sm p-3">
+    <% PERMISSIONS_LIST.forEach(p => { %>
+      <div class="form-check mb-2">
+        <input type="checkbox" class="form-check-input" name="permissions" value="<%= p.key %>" id="perm_<%= p.key %>"
+          <%= currentPermissions.includes(p.key) ? 'checked' : '' %>>
+        <label class="form-check-label" for="perm_<%= p.key %>"><%= p.label %></label>
+      </div>
+    <% }) %>
+  </div>
+  <button type="submit" class="btn btn-primary mt-3">حفظ الصلاحيات</button>
+  <a href="/users" class="btn btn-outline-secondary mt-3">رجوع</a>
+</form>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,37 @@
+<%- include('partials/header') %>
+
+<h3 class="mb-2">⚠️ طلاب محتاجين متابعة</h3>
+<p class="text-muted mb-4">قائمة تلقائية بالطلاب اللي رصيدهم منخفض أو عندهم غياب متكرر أو واجبات ضعيفة</p>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <% if (result.length === 0) { %>
+      <p class="text-muted">🎉 مفيش حد محتاج متابعة دلوقتي</p>
+    <% } %>
+    <div class="table-responsive">
+      <table class="table table-sm table-hover align-middle">
+        <thead class="table-light">
+          <tr><th>الكود</th><th>الاسم</th><th>السنتر</th><th>المادة</th><th>الرصيد</th><th>الأسباب</th></tr>
+        </thead>
+        <tbody>
+          <% result.forEach(r => { %>
+            <tr>
+              <td><%= r.student.student_code %></td>
+              <td><a href="/students/<%= r.student.id %>"><%= r.student.name %></a></td>
+              <td><%= r.student.Center.name %></td>
+              <td><%= r.student.Subject.name %></td>
+              <td><%= r.student.balance %> ج</td>
+              <td>
+                <% r.reasons.forEach(reason => { %>
+                  <span class="badge bg-danger mb-1"><%= reason %></span>
+                <% }) %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

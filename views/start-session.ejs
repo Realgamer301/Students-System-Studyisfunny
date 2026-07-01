@@ -1,0 +1,66 @@
+<%- include('partials/header') %>
+  <div class="container py-5">
+    <div class="card shadow-sm mx-auto" style="max-width: 600px;">
+      <div class="card-body p-4">
+        <h3 class="mb-4 text-center">بدء حصة</h3>
+
+        <form action="/sessions" method="POST">
+          <div class="mb-3">
+            <label class="form-label">المادة</label>
+            <select name="subject_id" class="form-select" required>
+              <option value="">-- اختر المادة --</option>
+              <% subjects.forEach(subj => { %>
+                <option value="<%= subj.id %>"><%= subj.name %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">السنتر</label>
+            <select name="center_id" class="form-select" required>
+              <option value="">-- اختر السنتر --</option>
+              <% centers.forEach(center => { %>
+                <option value="<%= center.id %>"><%= center.name %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">نوع الحصة</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="mode" id="modeNew" value="new" checked>
+              <label class="form-check-label" for="modeNew">
+                حصة جديدة (النظام يحسب رقمها تلقائي)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="mode" id="modeRepeat" value="repeat">
+              <label class="form-check-label" for="modeRepeat">
+                تكرار حصة سابقة في سنتر تاني (أنا أحدد رقمها)
+              </label>
+            </div>
+          </div>
+
+          <div class="mb-3" id="lessonNumberBox" style="display: none;">
+            <label class="form-label">رقم الحصة النسبي (مثلاً 3)</label>
+            <input type="number" name="lesson_number" class="form-control" min="1">
+          </div>
+
+          <button type="submit" class="btn btn-success w-100">بدء الحصة</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modeRepeat = document.getElementById('modeRepeat');
+    const modeNew = document.getElementById('modeNew');
+    const lessonNumberBox = document.getElementById('lessonNumberBox');
+
+    function toggleBox() {
+      lessonNumberBox.style.display = modeRepeat.checked ? 'block' : 'none';
+    }
+    modeRepeat.addEventListener('change', toggleBox);
+    modeNew.addEventListener('change', toggleBox);
+  </script>
+<%- include('partials/footer') %>

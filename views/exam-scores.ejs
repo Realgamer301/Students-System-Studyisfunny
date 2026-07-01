@@ -1,0 +1,55 @@
+<%- include('partials/header') %>
+
+<h3 class="mb-3"><%= exam.name %> (<%= exam.Subject.name %> - من <%= exam.max_score %>)</h3>
+<% if (exam.SessionId) { %>
+  <p class="text-muted small">⚠️ ظاهر هنا بس الطلاب اللي سجلوا حضورهم في حصة <%= exam.Session.lesson_number %> فعليًا.</p>
+<% } %>
+<input type="text" id="searchBox" class="form-control mb-3" placeholder="🔍 بحث بالاسم أو الكود...">
+
+<form action="/exams/<%= exam.id %>/scores" method="POST">
+  <div class="table-responsive bg-white rounded shadow-sm p-3">
+    <table class="table align-middle" id="studentsTable">
+      <thead class="table-light">
+        <tr>
+          <th>الكود</th>
+          <th>اسم الطالب</th>
+          <th>السنتر</th>
+          <th>الدرجة</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% students.forEach(student => { %>
+          <tr data-search="<%= (student.name + ' ' + student.student_code).toLowerCase() %>">
+            <td><%= student.student_code %></td>
+            <td><%= student.name %></td>
+            <td><%= student.Center.name %></td>
+            <td>
+              <input
+                type="number"
+                step="0.5"
+                name="score_<%= student.id %>"
+                class="form-control"
+                style="max-width: 120px;"
+                value="<%= existingScores[student.id] !== undefined ? existingScores[student.id] : '' %>"
+                max="<%= exam.max_score %>"
+                min="0">
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <button type="submit" class="btn btn-success mt-3">حفظ كل الدرجات</button>
+</form>
+
+<script>
+  document.getElementById('searchBox').addEventListener('input', function () {
+    const term = this.value.toLowerCase().trim();
+    document.querySelectorAll('#studentsTable tbody tr').forEach(row => {
+      const match = row.dataset.search.includes(term);
+      row.style.display = match ? '' : 'none';
+    });
+  });
+</script>
+
+<%- include('partials/footer') %>

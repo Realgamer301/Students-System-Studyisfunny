@@ -1,0 +1,77 @@
+<%- include('partials/header') %>
+
+<h3 class="mb-4">🔐 التحكم في مشاهدات: <%= video.title %></h3>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h6 class="mb-3">الإعدادات العامة (تخص كل الطلاب)</h6>
+    <form action="/admin/videos/<%= video.id %>/session-settings" method="POST" class="row g-2 align-items-end">
+      <div class="col-md-3 form-check ms-2">
+        <input type="checkbox" class="form-check-input" name="is_free_for_all" id="freeCheck"
+          <%= video.Session.is_free_for_all ? 'checked' : '' %>>
+        <label class="form-check-label" for="freeCheck">مفتوحة مجانًا للجميع</label>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small">عدد المشاهدات (حضر بالسنتر)</label>
+        <input type="number" name="views_if_attended" class="form-control" value="<%= video.Session.views_if_attended %>">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small">عدد المشاهدات (دفع)</label>
+        <input type="number" name="views_if_paid" class="form-control" value="<%= video.Session.views_if_paid %>">
+      </div>
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100">حفظ</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h6 class="mb-3">تحكم خاص بطالب معين (بدون التأثير على الباقي)</h6>
+    <input type="text" id="studentSearch" class="form-control mb-3" placeholder="🔍 بحث بالاسم أو الكود">
+
+    <div class="table-responsive">
+      <table class="table table-sm" id="studentsTable">
+        <thead class="table-light">
+          <tr><th>الكود</th><th>الاسم</th><th>حالة المشاهدة الحالية</th><th>تعديل</th></tr>
+        </thead>
+        <tbody>
+          <% students.forEach(s => { %>
+            <% const grant = grantsMap[s.id]; %>
+            <tr data-search="<%= (s.name + ' ' + s.student_code).toLowerCase() %>">
+              <td><%= s.student_code %></td>
+              <td><%= s.name %></td>
+              <td class="small">
+                <% if (grant) { %>
+                  <%= grant.method %> - استخدم <%= grant.views_used %> من <%= grant.max_views %>
+                <% } else { %><span class="text-muted">لا يوجد صلاحية مسجلة</span><% } %>
+              </td>
+              <td>
+                <form action="/admin/videos/<%= video.id %>/grant/<%= s.id %>" method="POST" class="d-flex gap-1">
+                  <select name="method" class="form-select form-select-sm" style="max-width: 130px;">
+                    <option value="admin_free">فتح مجاني</option>
+                    <option value="admin_paid">فتح (مدفوع بدون خصم)</option>
+                  </select>
+                  <input type="number" name="max_views" class="form-control form-control-sm" placeholder="عدد المرات" style="max-width: 90px;" value="<%= grant ? grant.max_views : 3 %>">
+                  <button type="submit" class="btn btn-sm btn-outline-success">حفظ</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('studentSearch').addEventListener('input', function () {
+    const term = this.value.toLowerCase().trim();
+    document.querySelectorAll('#studentsTable tbody tr').forEach(row => {
+      row.style.display = row.dataset.search.includes(term) ? '' : 'none';
+    });
+  });
+</script>
+
+<%- include('partials/footer') %>

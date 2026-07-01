@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+
+<h3 class="mb-4">📊 إحصائيات: <%= targetUser.name %></h3>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card p-3 text-center"><small>تسجيلات حضور</small><h4 class="text-primary"><%= attendanceCount %></h4></div></div>
+  <div class="col-md-3"><div class="card p-3 text-center"><small>تصحيحات واجب</small><h4 class="text-success"><%= homeworkCount %></h4></div></div>
+  <div class="col-md-3"><div class="card p-3 text-center"><small>درجات مرصودة</small><h4 class="text-warning"><%= examResultCount %></h4></div></div>
+  <div class="col-md-3"><div class="card p-3 text-center"><small>طلاب سجّلهم</small><h4 class="text-info"><%= studentsRegistered %></h4></div></div>
+</div>
+
+<div class="card shadow-sm p-3">
+  <h6 class="mb-3">نشاط آخر 7 أيام (تسجيل حضور)</h6>
+  <canvas id="userChart" height="100"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const dayCounts = <%- JSON.stringify(dayCounts) %>;
+  new Chart(document.getElementById('userChart'), {
+    type: 'bar',
+    data: { labels: Object.keys(dayCounts), datasets: [{ label: 'حضور سجّله', data: Object.values(dayCounts), backgroundColor: '#4338CA' }] },
+    options: { plugins: { legend: { display: false } } },
+  });
+</script>
+
+<%- include('partials/footer') %>

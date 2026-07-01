@@ -1,0 +1,82 @@
+<%- include('partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3>قائمة الطلاب (<%= students.length %>)</h3>
+  <div>
+    <a href="/students/export?<%= new URLSearchParams(filters).toString() %>" class="btn btn-outline-success">
+      📥 تصدير إكسيل
+    </a>
+    <a href="/students/new" class="btn btn-primary">+ تسجيل طالب جديد</a>
+  </div>
+</div>
+
+<form method="GET" action="/students" class="row g-2 mb-3">
+  <div class="col-md-4">
+    <input type="text" name="search" class="form-control" placeholder="🔍 بحث بالاسم، الكود، أو التليفون"
+      value="<%= filters.search %>">
+  </div>
+  <div class="col-md-3">
+    <select name="center_id" class="form-select">
+      <option value="">-- كل السناتر --</option>
+      <% centers.forEach(c => { %>
+        <option value="<%= c.id %>" <%= String(filters.center_id) === String(c.id) ? 'selected' : '' %>>
+          <%= c.name %>
+        </option>
+      <% }) %>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <select name="subject_id" class="form-select">
+      <option value="">-- كل المواد --</option>
+      <% subjects.forEach(s => { %>
+        <option value="<%= s.id %>" <%= String(filters.subject_id) === String(s.id) ? 'selected' : '' %>>
+          <%= s.name %>
+        </option>
+      <% }) %>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button type="submit" class="btn btn-secondary w-100">بحث</button>
+  </div>
+</form>
+
+<div class="table-responsive bg-white rounded shadow-sm p-3">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>الكود</th>
+        <th>الاسم</th>
+        <th>تليفون الطالب</th>
+        <th>تليفون ولي الأمر</th>
+        <th>المادة</th>
+        <th>السنتر</th>
+        <th>السعر</th>
+        <th>الرصيد</th>
+        <th>البوكليت</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% students.forEach(student => { %>
+        <tr>
+          <td><%= student.student_code %></td>
+          <td><a href="/students/<%= student.id %>"><%= student.name %></a></td>
+          <td><%= student.phone %></td>
+          <td><%= student.parent_phone %></td>
+          <td><%= student.Subject ? student.Subject.name : '-' %></td>
+          <td><%= student.Center ? student.Center.name : '-' %></td>
+          <td><%= student.price_per_session %> ج</td>
+          <td><%= student.balance %> ج</td>
+          <td>
+            <% if (student.booklet_status) { %>
+              <span class="badge bg-success">تم الشراء</span>
+            <% } else { %>
+              <span class="badge bg-secondary">لسه</span>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('partials/footer') %>

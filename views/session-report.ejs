@@ -1,0 +1,171 @@
+<%- include('partials/header') %>
+
+<h3 class="mb-3">
+  تقرير حصة: <%= session.Subject.name %> - <%= session.Center.name %>
+  (سيريال <%= session.serial_number %> / رقم نسبي <%= session.lesson_number %>)
+</h3>
+<div class="mb-3">
+  <a href="/sessions/<%= session.id %>/report/export-attendance" class="btn btn-outline-success">
+    📥 تصدير الحاضرين
+  </a>
+  <a href="/sessions/<%= session.id %>/report/export-absent" class="btn btn-outline-danger">
+    📥 تصدير الغايبين
+  </a>
+</div>
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h6 class="mb-3">💰 تقفيل السنتر (حساب التكلفة)</h6>
+    <p class="small">
+      عادي: <%= closing.normalCount %> | مخفض: <%= closing.reducedCount %> | مجاني: <%= closing.freeCount %><br>
+      إجمالي إيراد الحصة (سعر كل طالب مجمّع): <strong><%= closing.totalRevenue %> ج</strong>
+    </p>
+    <form action="/sessions/<%= session.id %>/closing" method="POST" class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label small">تكلفة الشخص العادي</label>
+        <input type="number" step="0.1" name="cost_per_normal" class="form-control" value="<%= session.cost_per_normal != null ? session.cost_per_normal : '' %>">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small">تكلفة الشخص المخفض</label>
+        <input type="number" step="0.1" name="cost_per_reduced" class="form-control" value="<%= session.cost_per_reduced != null ? session.cost_per_reduced : '' %>">
+      </div>
+      <div class="col-md-3"><button class="btn btn-primary w-100">حفظ وحساب</button></div>
+      <div class="col-md-3"><strong>إجمالي التكلفة: <%= closing.totalCost %> ج</strong></div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h6 class="mb-3">💵 تقفيل نقدية الحصة</h6>
+    <p class="small text-muted mb-1">إجمالي المبالغ النقدية المدفوعة فعليًا وقت تسجيل الحضور (بدون أي مبالغ مخصومة من رصيد سابق):</p>
+    <h4 class="text-success"><%= totalCashCollected %> ج</h4>
+  </div>
+</div>
+<ul class="nav nav-tabs mb-3">
+  <li class="nav-item">
+    <a class="nav-link active" data-bs-toggle="tab" href="#attendedTab">
+      الحاضرين (<%= attendedRows.length %>)
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-bs-toggle="tab" href="#absentTab">
+      الغايبين (<%= absentStudents.length %>)
+    </a>
+  </li>
+</ul>
+
+<div class="tab-content">
+  <!-- تاب الحاضرين -->
+  <div class="tab-pane fade show active" id="attendedTab">
+    <div class="table-responsive bg-white rounded shadow-sm p-3">
+      <table class="table table-sm table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>الكود</th>
+            <th>الاسم</th>
+            <th>تليفون الطالب</th>
+            <th>تليفون ولي الأمر</th>
+            <th>الواجب</th>
+            <th>الامتحان</th>
+            <th>دفع وقت الحضور</th>
+            <th>كومنت</th>
+            <th>سجّل الحضور</th>
+            <th>صحّح الواجب</th>
+            <th>رصد الامتحان</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% attendedRows.forEach(row => { %>
+            <tr>
+              <td><a href="/students/<%= row.student.id %>"><%= row.student.student_code %></a></td>
+              <td><a href="/students/<%= row.student.id %>"><%= row.student.name %></a></td>
+              <td><%= row.student.phone %></td>
+              <td><%= row.student.parent_phone %></td>
+              <td>
+                <% if (!row.homeworkStatus) { %>
+                  <span class="text-muted small">-</span>
+                <% } else if (row.homeworkStatus === 'complete') { %>
+                  <span class="badge bg-success">كامل</span>
+                <% } else if (row.homeworkStatus === 'incomplete') { %>
+                  <span class="badge bg-warning text-dark">مش كامل</span>
+                <% } else if (row.homeworkStatus === 'no_steps') { %>
+                  <span class="badge bg-secondary">من غير خطوات</span>
+                <% } else { %>
+                  <span class="badge bg-danger">مش معمول</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (row.examScore !== null) { %>
+                  <strong><%= row.examScore %></strong> / <%= row.examMax %>
+                <% } else { %>
+                  <span class="text-muted small">-</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (row.payment > 0) { %>
+                  <span class="text-success"><%= row.payment %> ج</span>
+                <% } else { %>
+                  <span class="text-muted small">-</span>
+                <% } %>
+              </td>
+              <td><span class="small"><%= row.comment || '-' %></span></td>
+              <td>
+                <span class="small text-muted">
+                  <%= row.attendanceUser %><br>
+                  <span style="font-size: 0.65rem;"><%= new Date(row.attendanceTime).toLocaleString('ar-EG') %></span>
+                </span>
+              </td>
+              <td>
+                <span class="small text-muted">
+                  <%= row.homeworkUser || '-' %>
+                  <% if (row.homeworkTime) { %><br><span style="font-size: 0.65rem;"><%= new Date(row.homeworkTime).toLocaleString('ar-EG') %></span><% } %>
+                </span>
+              </td>
+              <td><span class="small text-muted"><%= row.examUser || '-' %></span></td>
+              <td>
+                <form action="/attendance/<%= row.attendanceId %>/delete" method="POST" onsubmit="return confirm('متأكد من حذف الحضور؟ سيُسترجع المبلغ للطالب.')">
+                  <input type="hidden" name="redirect_to" value="/sessions/<%= session.id %>/report">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">حذف</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- تاب الغايبين -->
+  <div class="tab-pane fade" id="absentTab">
+    <% if (session.status === 'cancelled') { %>
+      <div class="alert alert-secondary">هذه الحصة ملغية، فلا يوجد غياب محسوب.</div>
+    <% } %>
+    <div class="table-responsive bg-white rounded shadow-sm p-3">
+      <table class="table table-sm table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>الكود</th>
+            <th>الاسم</th>
+            <th>تليفون الطالب</th>
+            <th>تليفون ولي الأمر</th>
+            <th>الرصيد الحالي</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% absentStudents.forEach(student => { %>
+            <tr>
+              <td><a href="/students/<%= student.id %>"><%= student.student_code %></a></td>
+              <td><a href="/students/<%= student.id %>"><%= student.name %></a></td>
+              <td><%= student.phone %></td>
+              <td><%= student.parent_phone %></td>
+              <td><%= student.balance %> ج</td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

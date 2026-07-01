@@ -1,0 +1,88 @@
+<%- include('partials/header') %>
+
+<h3 class="mb-2">🎬 <%= video.title %></h3>
+<p class="text-muted mb-4">
+  <%= video.Session.Subject.name %> - <%= video.Session.Center.name %> - حصة رقم <%= video.Session.lesson_number %>
+</p>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h6 class="mb-3">إضافة فيديو جديد لهذا الدرس</h6>
+    <form action="/admin/videos/<%= video.id %>/add-part" method="POST" enctype="multipart/form-data" class="row g-2">
+      <div class="col-md-3">
+        <select name="category" class="form-select" required>
+          <option value="explanation">فيديو الشرح</option>
+          <option value="questions">فيديو الأسئلة</option>
+          <option value="homework_solution">فيديو حل الواجب</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <input type="number" name="order_index" class="form-control" placeholder="الترتيب" value="1" min="1" required>
+      </div>
+      <div class="col-md-2">
+        <select name="source_type" id="sourceType" class="form-select" onchange="toggleSource()">
+          <option value="link">لينك</option>
+          <option value="upload">رفع ملف</option>
+        </select>
+      </div>
+      <div class="col-md-3" id="linkInputBox">
+        <input type="text" name="video_url" class="form-control" placeholder="لينك الفيديو">
+      </div>
+      <div class="col-md-3" id="uploadInputBox" style="display:none;">
+        <input type="file" name="video_file" class="form-control" accept="video/*">
+      </div>
+      <div class="col-md-2">
+        <input type="number" name="duration_seconds" class="form-control" placeholder="المدة بالثواني" required>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-success w-100">إضافة</button>
+      </div>
+    </form>
+    <p class="text-muted small mt-2">💡 لو فيه أكتر من لينك لنفس النوع، ضيفهم بترتيب مختلف (1, 2, 3...).</p>
+  </div>
+</div>
+
+<% ['explanation', 'questions', 'homework_solution'].forEach(cat => { %>
+  <% const labels = { explanation: '📖 فيديو الشرح', questions: '❓ فيديو الأسئلة', homework_solution: '✅ فيديو حل الواجب' }; %>
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h6 class="mb-3"><%= labels[cat] %></h6>
+      <% const parts = videoParts.filter(p => p.category === cat); %>
+      <% if (parts.length === 0) { %>
+        <p class="text-muted small">لا يوجد فيديو من هذا النوع حتى الآن</p>
+      <% } %>
+      <% if (parts.length > 0) { %>
+      <table class="table table-sm">
+        <tbody>
+          <% parts.forEach(p => { %>
+            <tr>
+              <td>الجزء <%= p.order_index %></td>
+              <td class="small">
+                <% if (p.source_type === 'link') { %>
+                  <a href="<%= p.video_url %>" target="_blank" class="text-decoration-none">🔗 لينك خارجي</a>
+                <% } else { %>📁 ملف مرفوع<% } %>
+              </td>
+              <td><%= Math.floor(p.duration_seconds / 60) %>:<%= String(p.duration_seconds % 60).padStart(2, '0') %></td>
+              <td>
+                <form action="/admin/videos/part/<%= p.id %>/delete" method="POST" onsubmit="return confirm('متأكد من الحذف؟')">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">حذف</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <% } %>
+    </div>
+  </div>
+<% }) %>
+
+<script>
+  function toggleSource() {
+    const type = document.getElementById('sourceType').value;
+    document.getElementById('linkInputBox').style.display = type === 'link' ? 'block' : 'none';
+    document.getElementById('uploadInputBox').style.display = type === 'upload' ? 'block' : 'none';
+  }
+</script>
+
+<%- include('partials/footer') %>
