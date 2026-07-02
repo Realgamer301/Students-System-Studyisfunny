@@ -42,6 +42,7 @@ require('./models/associations')();
 // ✅ لازم نعرف app الأول قبل ما نستخدمه في أي route
 const app = express();
 const PORT = process.env.PORT || 3000;
+const sessionSecret = process.env.SESSION_SECRET || process.env.JWT_SECRET;
 app.use(cors()); // يسمح لأي موقع يتواصل مع الـ API بتاعنا
 app.use(compression());
 
@@ -67,7 +68,7 @@ const videoUpload = multer({ storage: videoStorage, limits: { fileSize: 500 * 10
 
 // إعداد نظام الجلسات (تسجيل الدخول)
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: sessionSecret,
   resave: false,
   saveUninitialized: false,
 }));
