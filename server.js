@@ -53,6 +53,16 @@ app.use(express.json());
 // عشان نقدر نستخدم ملفات CSS / JS / صور من فولدر public
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/_health', (req, res) => {
+  res.json({
+    ok: true,
+    vercel: Boolean(process.env.VERCEL),
+    hasDbConfig: ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST'].every((key) => Boolean(process.env[key])),
+    hasSessionSecret: Boolean(sessionSecret),
+    hasJwtSecret: Boolean(process.env.JWT_SECRET),
+  });
+});
+
 // تجهيز رفع الفيديوهات وحفظها في فولدر public/uploads/videos
 const videoStorage = multer.diskStorage({
   destination: (req, file, cb) => {
