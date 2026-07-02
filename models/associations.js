@@ -31,9 +31,8 @@ function setupAssociations() {
   Session.belongsTo(Center);
   Subject.hasMany(Session);
   Session.belongsTo(Subject);
-}
 
-Student.hasMany(Attendance);
+  Student.hasMany(Attendance);
   Attendance.belongsTo(Student);
 
   Session.hasMany(Attendance);
@@ -96,5 +95,6 @@ Subject.hasMany(Exam);
   Warning.belongsTo(Student);
   User.hasMany(Warning);
   Warning.belongsTo(User);
+}
 
 module.exports = setupAssociations;

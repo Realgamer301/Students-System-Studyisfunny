@@ -12,6 +12,8 @@ const Center = sequelize.define('Center', {
     allowNull: false,
     unique: true,
   },
+}, {
+  tableName: 'centers',
 });
 
 module.exports = Center;

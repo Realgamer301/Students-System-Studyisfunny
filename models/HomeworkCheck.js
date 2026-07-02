@@ -11,6 +11,8 @@ const HomeworkCheck = sequelize.define('HomeworkCheck', {
     type: DataTypes.ENUM('complete', 'incomplete', 'no_steps', 'not_done'),
     allowNull: false,
   },
+}, {
+  tableName: 'homeworkchecks',
 });
 
 module.exports = HomeworkCheck;

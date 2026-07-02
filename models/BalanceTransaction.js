@@ -15,6 +15,8 @@ const BalanceTransaction = sequelize.define('BalanceTransaction', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+}, {
+  tableName: 'balancetransactions',
 });
 
 module.exports = BalanceTransaction;

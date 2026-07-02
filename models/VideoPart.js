@@ -34,6 +34,8 @@ const VideoPart = sequelize.define('VideoPart', {
     allowNull: false,
     defaultValue: 0,
   },
+}, {
+  tableName: 'videoparts',
 });
 
 module.exports = VideoPart;

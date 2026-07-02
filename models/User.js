@@ -29,6 +29,8 @@ const User = sequelize.define('User', {
     type: DataTypes.TEXT,
     allowNull: true, // هنخزن فيه JSON array من أسماء الصلاحيات
   },
+}, {
+  tableName: 'users',
 });
 
 module.exports = User;

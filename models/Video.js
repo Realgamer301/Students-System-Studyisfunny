@@ -11,6 +11,8 @@ const Video = sequelize.define('Video', {
     type: DataTypes.STRING,
     allowNull: false, // مثال: "التفاضل - الجزء الأول"
   },
+}, {
+  tableName: 'videos',
 });
 
 module.exports = Video;

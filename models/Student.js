@@ -53,6 +53,7 @@ const Student = sequelize.define('Student', {
     defaultValue: false, // false = لسه ماشتراهوش
   },
 }, {
+  tableName: 'students',
   hooks: {
     // بعد إنشاء الطالب مباشرة، نولّد له كود تلقائي بناءً على الـ id بتاعه
     afterCreate: async (student) => {

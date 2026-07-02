@@ -11,6 +11,8 @@ const ExamResult = sequelize.define('ExamResult', {
     type: DataTypes.FLOAT,
     allowNull: false,
   },
+}, {
+  tableName: 'examresults',
 });
 
 module.exports = ExamResult;

@@ -20,6 +20,8 @@ const VideoAccessGrant = sequelize.define('VideoAccessGrant', {
     allowNull: false,
     defaultValue: 0,
   },
+}, {
+  tableName: 'videoaccessgrants',
 });
 
 module.exports = VideoAccessGrant;

@@ -21,6 +21,8 @@ const Attendance = sequelize.define('Attendance', {
     allowNull: true,
     defaultValue: 0,
   },
+}, {
+  tableName: 'attendances',
 });
 
 module.exports = Attendance;

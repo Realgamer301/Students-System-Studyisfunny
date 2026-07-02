@@ -17,6 +17,8 @@ const Subject = sequelize.define('Subject', {
     allowNull: false,
     defaultValue: 80,
   },
+}, {
+  tableName: 'subjects',
 });
 
 module.exports = Subject;

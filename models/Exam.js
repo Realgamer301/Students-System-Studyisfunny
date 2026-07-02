@@ -21,6 +21,8 @@ const Exam = sequelize.define('Exam', {
     allowNull: false,
     defaultValue: DataTypes.NOW,
   },
+}, {
+  tableName: 'exams',
 });
 
 module.exports = Exam;

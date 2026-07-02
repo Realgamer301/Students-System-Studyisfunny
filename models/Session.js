@@ -43,6 +43,8 @@ const Session = sequelize.define('Session', {
   },
   cost_per_normal: { type: DataTypes.FLOAT, allowNull: true },
   cost_per_reduced: { type: DataTypes.FLOAT, allowNull: true },
+}, {
+  tableName: 'sessions',
 });
 
 

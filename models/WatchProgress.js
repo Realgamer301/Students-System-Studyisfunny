@@ -12,6 +12,8 @@ const WatchProgress = sequelize.define('WatchProgress', {
     allowNull: false,
     defaultValue: 0, // أقصى نقطة وصلها الطالب في المشاهدة
   },
+}, {
+  tableName: 'watchprogresses',
 });
 
 module.exports = WatchProgress;

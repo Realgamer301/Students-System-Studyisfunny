@@ -11,6 +11,8 @@ const CenterSubjectSeries = sequelize.define('CenterSubjectSeries', {
     type: DataTypes.INTEGER,
     allowNull: false, // مثلاً 5000 أو 4000
   },
+}, {
+  tableName: 'centersubjectseries',
 });
 
 module.exports = CenterSubjectSeries;
